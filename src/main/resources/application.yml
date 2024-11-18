@@ -1,0 +1,19 @@
+spring:
+  application:
+    name: backend
+
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/backend
+
+rsa:
+  private-key: classpath:cert/private.pem
+  public-key: classpath:cert/public.pem
+logging:
+  level:
+    org:
+      springframework:
+        data:
+          mongodb:
+            core:
+              ReactiveMongoTemplate: debug
