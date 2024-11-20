@@ -5,7 +5,7 @@ import com.kzyt.security.role.dto.RoleNameUpdate;
 import com.kzyt.security.role.dto.RoleResponse;
 import com.kzyt.security.role.dto.RoleSearchCriteria;
 import com.kzyt.util.Page;
-import com.kzyt.util.error.ObjectNotFoundError;
+import com.kzyt.util.error.ObjectNotFoundException;
 import com.kzyt.util.helper.ReactiveMongoHelper;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -21,7 +21,7 @@ public record RoleService(
 
     public Mono<RoleResponse> getRoleById(String id) {
         return roleRepository.findById(id)
-                .switchIfEmpty(Mono.error(new ObjectNotFoundError(id + " not found")))
+                .switchIfEmpty(Mono.error(new ObjectNotFoundException(id + " not found")))
                 .map(RoleResponse::from);
     }
 
@@ -31,7 +31,7 @@ public record RoleService(
 
     public Mono<RoleResponse> updateRoleName(String id, RoleNameUpdate update) {
         return roleRepository.findById(id)
-                .switchIfEmpty(Mono.error(new ObjectNotFoundError(id + " not found")))
+                .switchIfEmpty(Mono.error(new ObjectNotFoundException(id + " not found")))
                 .flatMap(role -> {
                     if (update.getName() != null && !update.getName().isBlank())
                         role.setName(update.getName());
@@ -41,7 +41,7 @@ public record RoleService(
 
     public Mono<Void> deleteRoleById(String id) {
         return roleRepository.findById(id)
-                .switchIfEmpty(Mono.error(new ObjectNotFoundError(id + " not found")))
+                .switchIfEmpty(Mono.error(new ObjectNotFoundException(id + " not found")))
                 .flatMap(role -> roleRepository.deleteById(id));
     }
 

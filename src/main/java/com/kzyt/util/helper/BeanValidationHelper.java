@@ -1,6 +1,6 @@
 package com.kzyt.util.helper;
 
-import com.kzyt.util.error.ValidationError;
+import com.kzyt.util.error.ValidationException;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.Validator;
@@ -18,7 +18,7 @@ public record BeanValidationHelper(
                     BeanPropertyBindingResult errors = new BeanPropertyBindingResult(body, bodyClass.getName());
                     validator.validate(body, errors);
                     if (errors.hasErrors()) {
-                        return Mono.error(new ValidationError(errors));
+                        return Mono.error(new ValidationException(errors));
                     }
                     return Mono.just(body);
                 })

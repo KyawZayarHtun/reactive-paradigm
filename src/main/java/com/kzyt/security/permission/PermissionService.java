@@ -5,7 +5,7 @@ import com.kzyt.security.permission.dto.PermissionResponse;
 import com.kzyt.security.permission.dto.PermissionSearchCriteria;
 import com.kzyt.security.permission.dto.PermissionUpdate;
 import com.kzyt.util.Page;
-import com.kzyt.util.error.ObjectNotFoundError;
+import com.kzyt.util.error.ObjectNotFoundException;
 import com.kzyt.util.helper.ReactiveMongoHelper;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -22,8 +22,14 @@ public record PermissionService(
 
     public Mono<PermissionResponse> getPermissionById(String id) {
         return permissionRepository.findById(id)
-                .switchIfEmpty(Mono.error(new ObjectNotFoundError(id + " not found")))
+                .switchIfEmpty(Mono.error(new ObjectNotFoundException(id + " not found")))
                 .map(PermissionResponse::from);
+    }
+
+    public Mono<String> getPermissionNameById(String id) {
+        return permissionRepository.findById(id)
+                .switchIfEmpty(Mono.error(new ObjectNotFoundException(id + " not found")))
+                .map(Permission::getName);
     }
 
     public Mono<PermissionResponse> createPermission(PermissionCreate permissionCreate) {
@@ -32,7 +38,7 @@ public record PermissionService(
 
     public Mono<PermissionResponse> updatePermission(String id, PermissionUpdate update) {
         return permissionRepository.findById(id)
-                .switchIfEmpty(Mono.error(new ObjectNotFoundError(id + " not found")))
+                .switchIfEmpty(Mono.error(new ObjectNotFoundException(id + " not found")))
                 .flatMap(permission -> {
                     if (update.getName() != null && !update.getName().isBlank())
                         permission.setName(update.getName());
@@ -44,7 +50,7 @@ public record PermissionService(
 
     public Mono<Void> deletePermissionById(String id) {
         return permissionRepository.findById(id)
-                .switchIfEmpty(Mono.error(new ObjectNotFoundError(id + " not found")))
+                .switchIfEmpty(Mono.error(new ObjectNotFoundException(id + " not found")))
                 .flatMap(role -> permissionRepository.deleteById(id));
     }
 

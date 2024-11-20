@@ -5,7 +5,7 @@ import com.kzyt.security.user.dto.UserResponse;
 import com.kzyt.security.user.dto.UserSearchCriteria;
 import com.kzyt.security.user.dto.UserStatusUpdate;
 import com.kzyt.util.Page;
-import com.kzyt.util.error.ObjectNotFoundError;
+import com.kzyt.util.error.ObjectNotFoundException;
 import com.kzyt.util.helper.ReactiveMongoHelper;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -22,8 +22,12 @@ public record UserService(
 
     public Mono<UserResponse> getUserById(String id) {
         return userRepository.findById(id)
-                .switchIfEmpty(Mono.error(new ObjectNotFoundError(id + " not found")))
+                .switchIfEmpty(Mono.error(new ObjectNotFoundException(id + " not found")))
                 .map(UserResponse::from);
+    }
+
+    public Mono<User> getUserByEmail(String email) {
+        return userRepository.findByEmail(email);
     }
 
     public Mono<UserResponse> register(UserRegistration registration) {
@@ -32,7 +36,7 @@ public record UserService(
 
     public Mono<UserResponse> updateUserStatus(String id, UserStatusUpdate userStatusUpdate) {
         return userRepository.findById(id)
-                .switchIfEmpty(Mono.error(new ObjectNotFoundError(id + " not found")))
+                .switchIfEmpty(Mono.error(new ObjectNotFoundException(id + " not found")))
                 .flatMap(user -> {
                     if (userStatusUpdate.getRoleId() != null && !userStatusUpdate.getRoleId().isBlank())
                         user.setRoleId(userStatusUpdate.getRoleId());

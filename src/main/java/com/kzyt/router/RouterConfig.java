@@ -1,5 +1,6 @@
 package com.kzyt.router;
 
+import com.kzyt.security.SecurityHandler;
 import com.kzyt.security.permission.PermissionHandler;
 import com.kzyt.security.role.RoleHandler;
 import com.kzyt.security.rolePermission.RolePermissionHandler;
@@ -28,6 +29,14 @@ public class RouterConfig {
                 .GET("{id}", acceptType, userHandler::getUser)
                 .POST("", acceptType, userHandler::register)
                 .PATCH("{id}", acceptType, userHandler::patchUpdateStatusAndRole)
+                .build());
+    }
+
+    @Bean
+    public RouterFunction<ServerResponse> securityRoutes(SecurityHandler securityHandler) {
+        return nest(path("/auth"), route()
+                .POST("login", acceptType, securityHandler::login)
+                .POST("refresh-token", acceptType, securityHandler::refreshToken)
                 .build());
     }
 

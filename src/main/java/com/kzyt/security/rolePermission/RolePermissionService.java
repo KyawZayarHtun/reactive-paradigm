@@ -5,7 +5,7 @@ import com.kzyt.security.role.RoleService;
 import com.kzyt.security.rolePermission.dto.AssignPermissions;
 import com.kzyt.security.rolePermission.dto.RolePermissionResponse;
 import com.kzyt.security.rolePermission.dto.RoleWithPermissions;
-import com.kzyt.util.error.ObjectNotFoundError;
+import com.kzyt.util.error.ObjectNotFoundException;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -26,7 +26,7 @@ public record RolePermissionService(
                 .flatMapMany(exist -> {
 
                     if (!exist)
-                        return Flux.error(new ObjectNotFoundError(roleId + " not found"));
+                        return Flux.error(new ObjectNotFoundException(roleId + " not found"));
 
                     List<RolePermission> rolePermissions = assignPermissions.getPermissionIds().stream()
                             .map(permissionId -> new RolePermission(roleId, permissionId))
@@ -42,13 +42,18 @@ public record RolePermissionService(
                 .flatMap(exist -> {
 
                     if (!exist)
-                        return Mono.error(new ObjectNotFoundError(roleId + " not found"));
+                        return Mono.error(new ObjectNotFoundException(roleId + " not found"));
 
                     return rolePermissionRepository.findByRoleId(roleId)
                             .flatMap(rolePermission -> permissionService.getPermissionById(rolePermission.getPermissionId()))
                             .collect(Collectors.toSet())
                             .map(permissionResponses -> new RoleWithPermissions(roleId, permissionResponses));
                 });
+    }
+
+    public Flux<String> getPermissionsNamesForRole(String roleId) {
+        return rolePermissionRepository.findByRoleId(roleId)
+                .flatMap(rolePermission -> permissionService.getPermissionNameById(rolePermission.getPermissionId()));
     }
 
 

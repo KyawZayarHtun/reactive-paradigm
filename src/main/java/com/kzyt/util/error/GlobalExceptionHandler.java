@@ -4,7 +4,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 import java.util.Map;
@@ -12,15 +11,15 @@ import java.util.Map;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(ValidationError.class)
-    public Mono<ResponseEntity<Map<String, String>>> handleCustomException(ValidationError ex) {
+    @ExceptionHandler(ValidationException.class)
+    public Mono<ResponseEntity<Map<String, String>>> handleValidationException(ValidationException ex) {
         return Mono.just(ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body(ex.getMessages()));
     }
 
-    @ExceptionHandler(ObjectNotFoundError.class)
-    public Mono<ResponseEntity<String>> handleCustomException(ObjectNotFoundError ex) {
+    @ExceptionHandler(ObjectNotFoundException.class)
+    public Mono<ResponseEntity<String>> handleObjectNotFoundException(ObjectNotFoundException ex) {
         return Mono.just(ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body(ex.getMessage()));

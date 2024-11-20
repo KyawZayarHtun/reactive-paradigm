@@ -7,7 +7,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.data.mongodb.config.EnableReactiveMongoAuditing;
 
 @SpringBootApplication
-//@EnableConfigurationProperties(RsaKeyProperties.class)
+@EnableConfigurationProperties(RsaKeyProperties.class)
 @EnableReactiveMongoAuditing(modifyOnCreate = false)
 public class BackendApplication {
 
