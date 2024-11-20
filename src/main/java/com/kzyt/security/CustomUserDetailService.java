@@ -28,7 +28,7 @@ public class CustomUserDetailService implements ReactiveUserDetailsService {
                                 .accountLocked(user.isLocked())
                                 .authorities(permission.toArray(new String[0]))
                                 .build()))
-                .switchIfEmpty(Mono.error(new UsernameNotFoundException("User not found")));
+                .switchIfEmpty(Mono.error(new UsernameNotFoundException("User not found!")));
     }
 
 }

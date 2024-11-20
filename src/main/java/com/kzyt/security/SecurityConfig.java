@@ -7,11 +7,14 @@ import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.method.configuration.EnableReactiveMethodSecurity;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -23,6 +26,7 @@ import reactor.core.publisher.Mono;
 @Configuration
 @RequiredArgsConstructor
 @EnableWebFluxSecurity
+@EnableReactiveMethodSecurity
 public class SecurityConfig {
 
     private final CustomUserDetailService customUserDetailService;
@@ -39,9 +43,16 @@ public class SecurityConfig {
                 .logout(Customizer.withDefaults())
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .httpBasic(ServerHttpSecurity.HttpBasicSpec::disable)
+                // for default oauth jwt
+                // use claim name "scope or scp" and use with hasAuthority("SCOPE_{permission}")
                 .oauth2ResourceServer(oauth -> oauth
-                        .jwt(Customizer.withDefaults()))
+                        .jwt(jwtSpec -> jwtSpec.jwtAuthenticationConverter(jwtAuthenticationConverter())))
                 .build();
+    }
+
+    @Bean
+    public Converter<Jwt, Mono<? extends AbstractAuthenticationToken>> jwtAuthenticationConverter() {
+        return new JwtToAuthenticationConverter();
     }
 
     @Bean

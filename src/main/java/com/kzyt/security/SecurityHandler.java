@@ -38,7 +38,6 @@ public record SecurityHandler(
     }
 
     public Mono<ServerResponse> refreshToken(ServerRequest req) {
-
         return validationHelper.validateBody(req, RefreshTokenRequest.class)
                 .flatMap(refreshTokenRequest -> securityService.validateToken(refreshTokenRequest.refreshToken())
                         .flatMap(email -> {

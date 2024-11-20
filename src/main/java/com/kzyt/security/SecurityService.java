@@ -11,7 +11,7 @@ import reactor.core.publisher.Mono;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.stream.Collectors;
+import java.util.List;
 
 @Service
 public record SecurityService(
@@ -29,10 +29,10 @@ public record SecurityService(
         return this.jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
     }
 
-    private String getScope(Authentication authentication) {
+    private List<String> getPermissions(Authentication authentication) {
         return authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.joining(","));
+                .toList();
     }
 
     private JwtClaimsSet getJwtClaimsSet(Authentication authentication, int sec) {
@@ -42,7 +42,7 @@ public record SecurityService(
                 .issuedAt(now)
                 .expiresAt(now.plus(sec, ChronoUnit.SECONDS))
                 .subject(authentication.getName())
-                .claim("scope", getScope(authentication))
+                .claim("permissions", getPermissions(authentication))
                 .build();
     }
 
